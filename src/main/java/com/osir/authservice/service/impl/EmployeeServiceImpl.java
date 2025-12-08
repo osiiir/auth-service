@@ -5,12 +5,13 @@ import com.osir.authservice.constant.StatusConstant;
 import com.osir.authservice.exception.AccountLockedException;
 import com.osir.authservice.exception.AccountNotFoundException;
 import com.osir.authservice.exception.PasswordErrorException;
-import com.osir.authservice.mapper.EmployeeMapper;
+import com.osir.authservice.feign.AdminServiceFeignClient;
 import com.osir.authservice.service.EmployeeService;
 import com.osir.takeoutpojo.constant.ErrorMessageConstant;
 import com.osir.takeoutpojo.dto.EmployeeLoginDTO;
 import com.osir.takeoutpojo.entity.Employee;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -19,7 +20,7 @@ import org.springframework.util.DigestUtils;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final EmployeeMapper employeeMapper;
+    private final AdminServiceFeignClient adminServiceFeignClient;
 
     /**
      * 员工登录
@@ -32,7 +33,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         String password = employeeLoginDTO.getPassword();
 
         //1、根据用户名查询数据库中的数据
-        Employee employee = employeeMapper.getByUsername(username);
+        Employee employee = adminServiceFeignClient.getByUsername(username);
 
         //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {

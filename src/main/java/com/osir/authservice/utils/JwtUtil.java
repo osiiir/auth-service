@@ -46,26 +46,15 @@ public class JwtUtil {
      * @return
      */
     public static Claims parseJWT(String secretKey, String token) {
-        // 得到DefaultJwtParser
-        /*Claims claims = Jwts.parser()
-                // 设置签名的秘钥
-                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
-                // 设置需要解析的jwt
-                .parseClaimsJws(token).getBody();*/
-
-        // 0.12新版本写法
         // 0.
         SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
         // 1. 先 build 出 parser
         JwtParser parser = Jwts.parser()
                 .verifyWith(key)   // 代替原来的 setSigningKey
                 .build();          // 关键：0.12 必须 build()
-
         // 2. 再解析
         Jws<Claims> jws = parser.parseSignedClaims(token);  // 方法名变了
         Claims claims = jws.getPayload();                 // 0.12 里叫 getPayload()
-
         return claims;
     }
 

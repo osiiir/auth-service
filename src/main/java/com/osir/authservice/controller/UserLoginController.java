@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/user/user")
+@RequestMapping("/auth/user/user")
 public class UserLoginController {
 
     private final UserService userService;
@@ -41,6 +41,7 @@ public class UserLoginController {
         // 为微信用户生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.USER_ID,user.getId());
+        claims.put(JwtClaimsConstant.USERNAME,user.getName());
         String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
 
         UserLoginVO userVO = UserLoginVO.builder()

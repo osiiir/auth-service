@@ -5,15 +5,12 @@ import com.osir.authservice.constant.JwtClaimsConstant;
 import com.osir.authservice.properties.JwtProperties;
 import com.osir.authservice.service.EmployeeService;
 import com.osir.authservice.utils.JwtUtil;
-import com.osir.takeoutpojo.dto.EmployeeDTO;
 import com.osir.takeoutpojo.dto.EmployeeLoginDTO;
-import com.osir.takeoutpojo.dto.EmployeePageQueryDTO;
 import com.osir.takeoutpojo.entity.Employee;
 import com.osir.takeoutpojo.result.Result;
 import com.osir.takeoutpojo.vo.EmployeeLoginVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,7 +22,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/admin/employee")
+@RequestMapping("/auth/admin/employee")
 public class EmployeeLoginController {
 
     private final EmployeeService employeeService;
@@ -45,7 +42,8 @@ public class EmployeeLoginController {
 
         //登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
-        claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
+        claims.put(JwtClaimsConstant.USER_ID, employee.getId());
+        claims.put(JwtClaimsConstant.USERNAME, employee.getUsername());
         String token = JwtUtil.createJWT(
                 jwtProperties.getAdminSecretKey(),
                 jwtProperties.getAdminTtl(),

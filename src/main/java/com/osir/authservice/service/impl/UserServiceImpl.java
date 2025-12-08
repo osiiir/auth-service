@@ -3,13 +3,14 @@ package com.osir.authservice.service.impl;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.osir.authservice.exception.LoginFailedException;
+import com.osir.authservice.feign.UserServiceFeignClient;
 import com.osir.authservice.properties.WeChatProperties;
-import com.osir.authservice.mapper.UserMapper;
 import com.osir.authservice.service.UserService;
 import com.osir.authservice.utils.HttpClientUtil;
 import com.osir.takeoutpojo.constant.ErrorMessageConstant;
 import com.osir.takeoutpojo.dto.UserLoginDTO;
 import com.osir.takeoutpojo.entity.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,15 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
     public static final String WX_LOGIN="https://api.weixin.qq.com/sns/jscode2session";
 
-    @Autowired
-    private WeChatProperties weChatProperties;
-    @Autowired
-    private UserMapper userMapper;
+    private final WeChatProperties weChatProperties;
+    private final UserServiceFeignClient userServiceFeignClient;
 
     /**
      * 微信用户登录
@@ -43,14 +43,14 @@ public class UserServiceImpl implements UserService {
             throw new LoginFailedException(ErrorMessageConstant.LOGIN_FAILED);
         }
         // 判断当前用户是否为新用户
-        User user = userMapper.getByOpenid(openid);
+        User user = userServiceFeignClient.getByOpenid(openid);
         // 如果是则加入到数据库中
         if(user==null){
             user = User.builder()
                     .openid(openid)
                     .createTime(LocalDateTime.now())
                     .build();
-            userMapper.insert(user);
+            userServiceFeignClient.insert(user);
         }
         // 返回user对象
         return user;
